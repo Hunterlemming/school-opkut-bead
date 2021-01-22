@@ -1,9 +1,11 @@
 package main.logic.utils;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.TextFieldTableCell;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,44 +22,56 @@ public class TableGenerator {
         this.N_COLS = buyerNumber + 1;  // first column in each row is the index
     }
 
-    public ObservableList<double[]> generateData() {
+    public ObservableList<String[]> generateData() {
 
-        ArrayList<double[]> myList = new ArrayList<>();
+        ArrayList<String[]> myList = new ArrayList<>();
 
         for (int r = 0; r < N_ROWS; r++) {
-            double[] myArray = new double[N_COLS];
+            String[] myArray = new String[N_COLS];
             for (int c = 0; c < N_COLS; c++) {
-                myArray[c] = 0;
+                if (c == 0) {
+                    myArray[c] = "S-" + (r + 1);   // Supply = Seller
+                } else {
+                    myArray[c] = "0";
+                }
             }
             myList.add(myArray);
         }
 
         return FXCollections.observableArrayList(myList);
-
-//        return FXCollections.observableArrayList(
-//                IntStream.range(0, N_ROWS)
-//                        .mapToObj(r ->
-//                                IntStream.range(0, N_COLS)
-//                                        .mapToDouble(c -> {
-//                                            if (c == 0) {
-//                                                return r;
-//                                            }
-//                                            return 0;
-//                                        })
-//                                        .toArray()
-//                        ).collect(Collectors.toList())
-//        );
     }
 
-    public List<TableColumn<double[], Double>> createColumns() {
+    public List<TableColumn<String[], String>> createColumns() {
         return IntStream.range(0, N_COLS)
                 .mapToObj(this::createColumn)
                 .collect(Collectors.toList());
     }
 
-    private TableColumn<double[], Double> createColumn(int c) {
-        TableColumn<double[], Double> col = new TableColumn<>("C" + (c + 1));
-        col.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()[c]));
+    private TableColumn<String[], String> createColumn(int c) {
+        TableColumn<String[], String> col;
+        if (c == 0) {
+            col = new TableColumn<>("ID");
+            col.setEditable(false);
+            col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue()[c]));
+        } else {
+            col = new TableColumn<>("D-" + c);  // Demand = Buyer
+            col.setCellFactory(TextFieldTableCell.forTableColumn());
+            col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue()[c]));
+            col.setEditable(true);
+            col.setOnEditCommit(
+                    new EventHandler<TableColumn.CellEditEvent<String[], String>>() {
+                        @Override
+                        public void handle(TableColumn.CellEditEvent<String[], String> stringCellEditEvent) {
+                            ((String[]) stringCellEditEvent.getTableView().getItems().get(
+                                    stringCellEditEvent.getTablePosition().getRow())
+                            )[c] = stringCellEditEvent.getNewValue();
+                        }
+                    }
+            );
+        }
+        col.setStyle("-fx-alignment: CENTER;");
+        col.setPrefWidth(40);
+        col.setMinWidth(40);
 
         return col;
     }

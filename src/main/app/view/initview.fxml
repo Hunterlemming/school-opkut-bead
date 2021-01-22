@@ -2,14 +2,13 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="367.0" prefWidth="566.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.app.controller.InitViewController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="566.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.app.controller.InitViewController">
    <children>
       <Pane fx:id="initPane" layoutX="183.0" layoutY="107.0" prefHeight="153.0" prefWidth="200.0" visible="false">
          <children>
@@ -29,19 +28,13 @@
             <Label fx:id="invalidLabel" layoutX="51.0" layoutY="90.0" text="Invalid Parameters" textFill="RED" />
          </children>
       </Pane>
-      <Pane fx:id="inputTablePane" prefHeight="367.0" prefWidth="566.0">
+      <Pane fx:id="inputPane" prefHeight="400.0" prefWidth="566.0">
          <children>
-            <TableView fx:id="inputTable" editable="true" layoutX="16.0" layoutY="39.0" prefHeight="223.0" prefWidth="535.0" visible="false">
-              <columns>
-                <TableColumn prefWidth="100.0" text="Sellers \ Buyers" />
-                <TableColumn minWidth="0.0" prefWidth="29.0" text="1" />
-              </columns>
-            </TableView>
-            <Label layoutX="261.0" layoutY="14.0" text="Buyers">
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-            </Label>
+            <HBox prefHeight="400.0" prefWidth="566.0">
+               <children>
+                  <Pane fx:id="inputTablePane" prefHeight="400.0" prefWidth="400.0" />
+               </children>
+            </HBox>
          </children>
       </Pane>
    </children>
