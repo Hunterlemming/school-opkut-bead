@@ -6,12 +6,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import main.logic.cplex.TransportationSolver;
 import main.logic.utils.TableGenerator;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class InitViewController implements Initializable {
+
+    private static final int MAX_VALUE = 1000000;
 
 
     @FXML private Pane initPane;
@@ -55,6 +58,43 @@ public class InitViewController implements Initializable {
         inputTablePane.getChildren().add(generatedTable);
     }
 
+    public void transitionToSolutionPane() {
+        solve();
+        inputPane.setVisible(false);
+        solutionPane.setVisible(true);
+    }
+
+
+    @FXML private Pane solutionPane;
+
+    private void solve() {  //TODO Debug: ArrayIndexOutOfBounds
+        Integer[] demands = new Integer[demandNumber];
+        Integer[] supplies = new Integer[supplyNumber];
+        Integer[][] costs = new Integer[supplyNumber][demandNumber];
+
+        for (int r=0; r<supplyNumber+1; r++) {
+            for (int c=0; c<demandNumber+1; c++) {
+                int value;
+                try {
+                    value = Integer.parseInt(generatedTable.getItems().get(r)[c]);
+                } catch (NumberFormatException ex) {
+                    value = MAX_VALUE;
+                }
+                if (!(r == 0 && c == 0)) {
+                    if (r == 0) {
+                        demands[c] = value;
+                    } else if (c == 0) {
+                        supplies[r] = value;
+                    } else {
+                        costs[r][c] = value;
+                    }
+                }
+            }
+        }
+
+        TransportationSolver solver = new TransportationSolver();
+        solver.solve(supplies, demands, costs);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

@@ -33,9 +33,19 @@
             <HBox prefHeight="400.0" prefWidth="566.0">
                <children>
                   <Pane fx:id="inputTablePane" prefHeight="400.0" prefWidth="400.0" />
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Button layoutX="51.0" layoutY="347.0" mnemonicParsing="false" onAction="#transitionToSolutionPane" prefHeight="39.0" prefWidth="82.0" text="Solve">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </Pane>
                </children>
             </HBox>
          </children>
       </Pane>
+      <Pane fx:id="solutionPane" prefHeight="400.0" prefWidth="566.0" visible="false" />
    </children>
 </AnchorPane>

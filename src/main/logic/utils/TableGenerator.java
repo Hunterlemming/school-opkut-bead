@@ -18,8 +18,8 @@ public class TableGenerator {
     private final int N_COLS;
 
     public TableGenerator(int sellerNumber, int buyerNumber) {
-        this.N_ROWS = sellerNumber;
-        this.N_COLS = buyerNumber + 1;  // first column in each row is the index
+        this.N_ROWS = sellerNumber + 1; // first row of each column is the current demand
+        this.N_COLS = buyerNumber + 1;  // first column in each row is the current supply
     }
 
     public ObservableList<String[]> generateData() {
@@ -29,10 +29,10 @@ public class TableGenerator {
         for (int r = 0; r < N_ROWS; r++) {
             String[] myArray = new String[N_COLS];
             for (int c = 0; c < N_COLS; c++) {
-                if (c == 0) {
-                    myArray[c] = "S-" + (r + 1);   // Supply = Seller
+                if (c == 0 && r == 0) {
+                    myArray[c] = "Supp\\Dem";
                 } else {
-                    myArray[c] = "0";
+                    myArray[c] = "0";       // Supply = Seller
                 }
             }
             myList.add(myArray);
@@ -50,28 +50,29 @@ public class TableGenerator {
     private TableColumn<String[], String> createColumn(int c) {
         TableColumn<String[], String> col;
         if (c == 0) {
-            col = new TableColumn<>("ID");
-            col.setEditable(false);
+            col = new TableColumn<>("-");
+            col.setCellFactory(TextFieldTableCell.forTableColumn());
             col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue()[c]));
+            col.setPrefWidth(80);
         } else {
             col = new TableColumn<>("D-" + c);  // Demand = Buyer
             col.setCellFactory(TextFieldTableCell.forTableColumn());
             col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue()[c]));
-            col.setEditable(true);
-            col.setOnEditCommit(
-                    new EventHandler<TableColumn.CellEditEvent<String[], String>>() {
-                        @Override
-                        public void handle(TableColumn.CellEditEvent<String[], String> stringCellEditEvent) {
-                            ((String[]) stringCellEditEvent.getTableView().getItems().get(
-                                    stringCellEditEvent.getTablePosition().getRow())
-                            )[c] = stringCellEditEvent.getNewValue();
-                        }
-                    }
-            );
+            col.setPrefWidth(40);
         }
+        col.setOnEditCommit(
+                new EventHandler<TableColumn.CellEditEvent<String[], String>>() {
+                    @Override
+                    public void handle(TableColumn.CellEditEvent<String[], String> stringCellEditEvent) {
+                        ((String[]) stringCellEditEvent.getTableView().getItems().get(
+                                stringCellEditEvent.getTablePosition().getRow())
+                        )[c] = stringCellEditEvent.getNewValue();
+                    }
+                }
+        );
         col.setStyle("-fx-alignment: CENTER;");
-        col.setPrefWidth(40);
         col.setMinWidth(40);
+        col.setMaxWidth(80);
 
         return col;
     }
