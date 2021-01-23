@@ -66,8 +66,9 @@ public class InitViewController implements Initializable {
 
 
     @FXML private Pane solutionPane;
+    private TransportationSolver solver;
 
-    private void solve() {  //TODO Debug: ArrayIndexOutOfBounds
+    private void solve() {
         Integer[] demands = new Integer[demandNumber];
         Integer[] supplies = new Integer[supplyNumber];
         Integer[][] costs = new Integer[supplyNumber][demandNumber];
@@ -82,19 +83,25 @@ public class InitViewController implements Initializable {
                 }
                 if (!(r == 0 && c == 0)) {
                     if (r == 0) {
-                        demands[c] = value;
+                        demands[c-1] = value;
                     } else if (c == 0) {
-                        supplies[r] = value;
+                        supplies[r-1] = value;
                     } else {
-                        costs[r][c] = value;
+                        costs[r-1][c-1] = value;
                     }
                 }
             }
         }
 
-        TransportationSolver solver = new TransportationSolver();
+        solver = new TransportationSolver();
         solver.solve(supplies, demands, costs);
+        visualizeSolution();
     }
+
+    private void visualizeSolution() {
+        System.out.println("debug");
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

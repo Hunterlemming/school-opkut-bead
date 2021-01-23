@@ -16,6 +16,11 @@ public class TransportationSolver {
         isSolved = false;
     }
 
+    public boolean getIsSolved() { return this.isSolved; }
+    public String getStatus() { return this.status; }
+    public double getSolutionCost() { return this.solutionCost; }
+    public double[][] getSolution() { return this.solution; }
+
     public void solve(Integer[] supply, Integer[] demand, Integer[][] cost) {
         try  {
             IloCplex cplex = new IloCplex();
