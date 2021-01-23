@@ -28,7 +28,7 @@
             <Label fx:id="invalidLabel" layoutX="51.0" layoutY="90.0" text="Invalid Parameters" textFill="RED" />
          </children>
       </Pane>
-      <Pane fx:id="inputPane" prefHeight="400.0" prefWidth="566.0">
+      <Pane fx:id="inputPane" prefHeight="400.0" prefWidth="566.0" visible="false">
          <children>
             <HBox prefHeight="400.0" prefWidth="566.0">
                <children>
@@ -46,6 +46,13 @@
             </HBox>
          </children>
       </Pane>
-      <Pane fx:id="solutionPane" prefHeight="400.0" prefWidth="566.0" visible="false" />
+      <Pane fx:id="solutionPane" prefHeight="400.0" prefWidth="566.0">
+         <children>
+            <HBox prefHeight="400.0" prefWidth="566.0">
+               <children>
+                  <Pane fx:id="solutionTablePane" prefHeight="400.0" prefWidth="400.0" />
+               </children>
+            </HBox>
+         </children></Pane>
    </children>
 </AnchorPane>

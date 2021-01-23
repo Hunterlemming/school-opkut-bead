@@ -45,17 +45,22 @@ public class InitViewController implements Initializable {
     @FXML private Pane inputPane;
     @FXML private Pane inputTablePane;
     TableView<String[]> generatedTable;
+    private TableGenerator gen;
 
     private void generateTable() {
-        TableGenerator gen = new TableGenerator(supplyNumber, demandNumber);
+        gen = new TableGenerator(supplyNumber, demandNumber);
         generatedTable = new TableView<>(gen.generateData());
         generatedTable.getColumns().setAll(gen.createColumns());
         generatedTable.setEditable(true);
+        customizeTable(generatedTable);
+        inputTablePane.getChildren().add(generatedTable);
+    }
+
+    private void customizeTable(TableView<String[]> table) {
         generatedTable.setPrefWidth(400);
         generatedTable.setMaxWidth(400);
         generatedTable.setPrefHeight(400);
         generatedTable.setMaxHeight(400);
-        inputTablePane.getChildren().add(generatedTable);
     }
 
     public void transitionToSolutionPane() {
@@ -66,11 +71,15 @@ public class InitViewController implements Initializable {
 
 
     @FXML private Pane solutionPane;
+    @FXML private Pane solutionTablePane;
+    TableView<String[]> solutionTable;
+    Integer[] supplies;
+    Integer[] demands;
     private TransportationSolver solver;
 
     private void solve() {
-        Integer[] demands = new Integer[demandNumber];
-        Integer[] supplies = new Integer[supplyNumber];
+        demands = new Integer[demandNumber];
+        supplies = new Integer[supplyNumber];
         Integer[][] costs = new Integer[supplyNumber][demandNumber];
 
         for (int r=0; r<supplyNumber+1; r++) {
@@ -99,7 +108,15 @@ public class InitViewController implements Initializable {
     }
 
     private void visualizeSolution() {
-        System.out.println("debug");
+        createSolutionTable();
+    }
+
+    private void createSolutionTable() {
+        solutionTable = new TableView<>(gen.generateData(supplies, demands, solver.getSolution()));
+        solutionTable.getColumns().setAll(gen.createColumns());
+        solutionTable.setEditable(false);
+        customizeTable(solutionTable);
+        solutionTablePane.getChildren().add(solutionTable);
     }
 
 
@@ -108,6 +125,7 @@ public class InitViewController implements Initializable {
         initPane.setVisible(true);
         invalidLabel.setVisible(false);
         inputPane.setVisible(false);
+        solutionPane.setVisible(false);
     }
 
 }

@@ -30,9 +30,34 @@ public class TableGenerator {
             String[] myArray = new String[N_COLS];
             for (int c = 0; c < N_COLS; c++) {
                 if (c == 0 && r == 0) {
-                    myArray[c] = "Supp\\Dem";
+                    myArray[c] = "Costs";
                 } else {
                     myArray[c] = "0";       // Supply = Seller
+                }
+            }
+            myList.add(myArray);
+        }
+
+        return FXCollections.observableArrayList(myList);
+    }
+
+    public ObservableList<String[]> generateData(Integer[] supply, Integer[] demand, double[][] solution) {
+
+        ArrayList<String[]> myList = new ArrayList<>();
+
+        for (int r = 0; r < N_ROWS; r++) {
+            String[] myArray = new String[N_COLS];
+            for (int c = 0; c < N_COLS; c++) {
+                if (c == 0 && r == 0) {
+                    myArray[c] = "Solution";
+                } else {                        // Supply = Seller
+                    if (r == 0) {
+                        myArray[c] = "" + demand[c-1];
+                    } else if (c == 0) {
+                        myArray[c] = "" + supply[r-1];
+                    } else {
+                        myArray[c] = "" + solution[r-1][c-1];
+                    }
                 }
             }
             myList.add(myArray);
@@ -50,7 +75,7 @@ public class TableGenerator {
     private TableColumn<String[], String> createColumn(int c) {
         TableColumn<String[], String> col;
         if (c == 0) {
-            col = new TableColumn<>("-");
+            col = new TableColumn<>("Supplies");
             col.setCellFactory(TextFieldTableCell.forTableColumn());
             col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue()[c]));
             col.setPrefWidth(80);
