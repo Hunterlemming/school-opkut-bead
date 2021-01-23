@@ -10,6 +10,7 @@ import main.logic.cplex.TransportationSolver;
 import main.logic.utils.TableGenerator;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class InitViewController implements Initializable {
@@ -44,6 +45,7 @@ public class InitViewController implements Initializable {
 
     @FXML private Pane inputPane;
     @FXML private Pane inputTablePane;
+    @FXML private Label parameterErrorLabel;
     TableView<String[]> generatedTable;
     private TableGenerator gen;
 
@@ -57,16 +59,20 @@ public class InitViewController implements Initializable {
     }
 
     private void customizeTable(TableView<String[]> table) {
-        generatedTable.setPrefWidth(400);
-        generatedTable.setMaxWidth(400);
-        generatedTable.setPrefHeight(400);
-        generatedTable.setMaxHeight(400);
+        table.setMinWidth(400);
+        table.setPrefWidth(400);
+        table.setMaxWidth(400);
+        table.setMinHeight(400);
+        table.setPrefHeight(400);
+        table.setMaxHeight(400);
     }
 
     public void transitionToSolutionPane() {
         solve();
-        inputPane.setVisible(false);
-        solutionPane.setVisible(true);
+        if (solver.getIsSolved()) {
+            inputPane.setVisible(false);
+            solutionPane.setVisible(true);
+        }
     }
 
 
@@ -75,12 +81,15 @@ public class InitViewController implements Initializable {
     TableView<String[]> solutionTable;
     Integer[] supplies;
     Integer[] demands;
+    Integer[][] costs;
     private TransportationSolver solver;
+    private ArrayList<String> problemType;
 
     private void solve() {
+        problemType = new ArrayList<>();
         demands = new Integer[demandNumber];
         supplies = new Integer[supplyNumber];
-        Integer[][] costs = new Integer[supplyNumber][demandNumber];
+        costs = new Integer[supplyNumber][demandNumber];
 
         for (int r=0; r<supplyNumber+1; r++) {
             for (int c=0; c<demandNumber+1; c++) {
@@ -88,6 +97,10 @@ public class InitViewController implements Initializable {
                 try {
                     value = Integer.parseInt(generatedTable.getItems().get(r)[c]);
                 } catch (NumberFormatException ex) {
+                    if (c == 0 && r == 0) {
+                        continue;
+                    }
+                    problemType.add("Prohibited");
                     value = MAX_VALUE;
                 }
                 if (!(r == 0 && c == 0)) {
@@ -102,13 +115,98 @@ public class InitViewController implements Initializable {
             }
         }
 
+        checkForOpen();
+
         solver = new TransportationSolver();
         solver.solve(supplies, demands, costs);
-        visualizeSolution();
+        if (solver.getIsSolved()) {
+            visualizeSolution();
+        } else {
+            parameterErrorLabel.setVisible(true);
+        }
     }
 
+    private void checkForOpen() {
+        int demandSum = 0;
+        int supplySum = 0;
+
+        for (Integer demand : demands) { demandSum += demand; }
+
+        for (Integer supply : supplies) { supplySum += supply; }
+
+        if (demandSum < supplySum) {
+            addDemandColumn(supplySum - demandSum);
+        } else if (demandSum > supplySum) {
+            addSupplierRow(demandSum - supplySum);
+        } else {
+            problemType.add("Closed");
+        }
+    }
+
+    private void addDemandColumn(int newDemand) {
+        problemType.add("Open");
+
+        Integer[] newDemands = new Integer[demandNumber + 1];
+        System.arraycopy(demands, 0, newDemands, 0, demands.length);
+        newDemands[demandNumber] = newDemand;
+
+        Integer[][] newCosts = new Integer[supplyNumber][demandNumber + 1];
+        for (int r=0; r<supplyNumber; r++) {
+            for (int c=0; c<demandNumber + 1; c++) {
+                if (c!=demandNumber) {
+                    newCosts[r][c] = costs[r][c];
+                } else {
+                    newCosts[r][c] = 0;
+                }
+            }
+        }
+
+        demands = newDemands;
+        costs = newCosts;
+    }
+
+    private void addSupplierRow(int newSupplier) {
+        problemType.add("Open");
+
+        Integer[] newSuppliers = new Integer[supplyNumber + 1];
+        System.arraycopy(supplies, 0, newSuppliers, 0, supplies.length);
+        newSuppliers[supplyNumber] = newSupplier;
+
+        Integer[][] newCosts = new Integer[supplyNumber +1][demandNumber];
+        for (int r=0; r<supplyNumber + 1; r++) {
+            for (int c=0; c<demandNumber; c++) {
+                if (r!=supplyNumber) {
+                    newCosts[r][c] = costs[r][c];
+                } else {
+                    newCosts[r][c] = 0;
+                }
+            }
+        }
+
+        supplies = newSuppliers;
+        costs = newCosts;
+    }
+
+
+
+    @FXML private Label solutionStatusLabel;
+    @FXML private Label solutionTypeLabel;
+    @FXML private Label solutionCostLabel;
+
     private void visualizeSolution() {
+        solutionStatusLabel.setText(solver.getStatus());
+        solutionTypeLabel.setText(getSolutionType());
+        solutionCostLabel.setText("" + solver.getSolutionCost());
         createSolutionTable();
+    }
+
+    private String getSolutionType() {
+        StringBuilder sb = new StringBuilder();
+        for (String type : problemType) {
+            sb.append(type);
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 
     private void createSolutionTable() {
@@ -119,13 +217,20 @@ public class InitViewController implements Initializable {
         solutionTablePane.getChildren().add(solutionTable);
     }
 
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void reset() {
+        supplyInputField.setText("");
+        demandInputField.setText("");
         initPane.setVisible(true);
         invalidLabel.setVisible(false);
         inputPane.setVisible(false);
+        parameterErrorLabel.setVisible(false);
         solutionPane.setVisible(false);
+    }
+
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        reset();
     }
 
 }
